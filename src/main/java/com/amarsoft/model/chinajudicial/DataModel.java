@@ -2,7 +2,7 @@ package com.amarsoft.model.chinajudicial;
 
 /**
  * Created by ymhe on 2016/12/27.
- * ChinaJudicialDataTransfer
+ * 中国裁判文书网一级监控名单数据模型
  */
 public class DataModel {
     private String serialNo;
@@ -40,8 +40,14 @@ public class DataModel {
     private String caseLevel;
     private String cardNo;
     private String IPName;
+    //下面字段存在于27库
     private String isSynched; //是否需要同步。 N：尚未需要（默认），N：不需要（URL为空时，或者已经同步过的）
+    //下面字段存在于25库
+    private String status;// 标记是否同步：waiting：等待同步；invalid：被布隆过滤器过滤掉的；success：同步成功的
+    // 下面字段不存在于数据库，是同步程序中用到的逻辑字段
     private String URLStatus;// 数据源标志位：URL已经存在于布隆过滤器中了则标记R（重复）, URL为空则标记E（Empty）, 不重复标记T。
+    private String instNo; //机构编号
+    private String instName; //机构名称
 
     public String getCourt() {
         return court;
@@ -356,5 +362,29 @@ public class DataModel {
 
     public void setURLStatus(String URLStatus) {
         this.URLStatus = URLStatus;
+    }
+
+    public String getInstNo() {
+        return instNo;
+    }
+
+    public void setInstNo(String instNo) {
+        this.instNo = instNo;
+    }
+
+    public String getInstName() {
+        return instName;
+    }
+
+    public void setInstName(String instName) {
+        this.instName = instName;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }
