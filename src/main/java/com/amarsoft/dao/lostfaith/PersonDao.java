@@ -2,6 +2,7 @@ package com.amarsoft.dao.lostfaith;
 
 import com.amarsoft.are.ARE;
 import com.amarsoft.model.lostfaith.EntModel;
+import com.amarsoft.model.lostfaith.PersonModel;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -14,8 +15,8 @@ import java.util.List;
  * Created by ryang on 2017/1/3.
  */
 
-//针对失信企业的数据库操作
-public class EntDao {
+//失信个人数据库操作
+public class PersonDao {
     static Connection conn1 = null;
     static Connection conn2 = null;
     static PreparedStatement ps = null;
@@ -38,23 +39,24 @@ public class EntDao {
 
 
     //获得需要同步的数据
-    public List<EntModel> getSyncData(){
-        List<EntModel> entModels = new LinkedList<EntModel>();
+    public List<PersonModel> getSyncData(){
+        List<PersonModel> entModels = new LinkedList<PersonModel>();
         int synOneTime = Integer.valueOf(ARE.getProperty("synOneTime"));
-        String selectSql = "select * from cb_lostfaith_ent_daily where issynchorized = 0 order by collectiondate desc limit 0,?";
+        String selectSql = "select * from cb_lostfaith_person_daily where issynchorized = 0 order by collectiondate desc limit 0,?";
 
         try {
             ps = conn1.prepareStatement(selectSql);
             ps.setInt(1,synOneTime);
             rs = ps.executeQuery();
             while (rs.next()){
-                EntModel entModel = new EntModel();
+                PersonModel entModel = new PersonModel();
                 entModel.setId(rs.getString("id"));
                 entModel.setIname(rs.getString("iname"));
                 entModel.setCasecode(rs.getString("casecode"));
+                entModel.setAge(rs.getString("age"));
+                entModel.setSexy(rs.getString("sexy"));
                 entModel.setFocusnumber(rs.getString("focusnumber"));
                 entModel.setCardnum(rs.getString("cardnum"));
-                entModel.setBusinessentity(rs.getString("businessentity"));
                 entModel.setCourtname(rs.getString("courtname"));
                 entModel.setAreaname(rs.getString("areaname"));
                 entModel.setPartytypename(rs.getString("partytypename"));
@@ -91,35 +93,37 @@ public class EntDao {
     }
 
     //进行插入操作
-    public  void insertEntData(List<EntModel> entModels){
-        String insertSql = "insert into cb_lostfaith_ent(id,iname,casecode,focusnumber,cardnum,businessentity,courtname,areaname,partytypename,gistid,regdate,gistunit,performance,disrupttypename,publishdate,duty,collectiondate,isinuse,inputtime,dutytext) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+    public  void insertEntData(List<PersonModel> entModels){
+
+        String insertSql = "insert into cb_lostfaith_person(id,iname,casecode,age,sexy,focusnumber,cardnum,courtname,areaname,partytypename,gistid,regdate,gistunit,performance,disrupttypename,publishdate,duty,collectiondate,isinuse,inputtime,dutytext) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
         if(entModels.size()==0){
             return;
         }
 
         try {
             ps = conn2.prepareStatement(insertSql);
-            for(EntModel entModel:entModels){
+            for(PersonModel entModel:entModels){
                 ps.setString(1,entModel.getId());
                 ps.setString(2,entModel.getIname());
                 ps.setString(3,entModel.getCasecode());
-                ps.setString(4,entModel.getFocusnumber());
-                ps.setString(5,entModel.getCardnum());
-                ps.setString(6,entModel.getBusinessentity());
-                ps.setString(7,entModel.getCourtname());
-                ps.setString(8,entModel.getAreaname());
-                ps.setString(9,entModel.getPartytypename());
-                ps.setString(10,entModel.getGistid());
-                ps.setString(11,entModel.getRegdate());
-                ps.setString(12,entModel.getGistunit());
-                ps.setString(13,entModel.getPerformance());
-                ps.setString(14,entModel.getDisrupttypename());
-                ps.setString(15,entModel.getPublishdate());
-                ps.setString(16,entModel.getDuty());
-                ps.setString(17,entModel.getCollectiondate());
-                ps.setString(18,entModel.getIsinuse());
-                ps.setString(19,entModel.getInputtime());
-                ps.setString(20,entModel.getDutytext());
+                ps.setString(4,entModel.getAge());
+                ps.setString(5,entModel.getSexy());
+                ps.setString(6,entModel.getFocusnumber());
+                ps.setString(7,entModel.getCardnum());
+                ps.setString(8,entModel.getCourtname());
+                ps.setString(9,entModel.getAreaname());
+                ps.setString(10,entModel.getPartytypename());
+                ps.setString(11,entModel.getGistid());
+                ps.setString(12,entModel.getRegdate());
+                ps.setString(13,entModel.getGistunit());
+                ps.setString(14,entModel.getPerformance());
+                ps.setString(15,entModel.getDisrupttypename());
+                ps.setString(16,entModel.getPublishdate());
+                ps.setString(17,entModel.getDuty());
+                ps.setString(18,entModel.getCollectiondate());
+                ps.setString(19,entModel.getIsinuse());
+                ps.setString(20,entModel.getInputtime());
+                ps.setString(21,entModel.getDutytext());
                 ps.addBatch();
             }
 
@@ -142,9 +146,9 @@ public class EntDao {
     }
 
     //进行更新操作
-    public void updateEntDate(List<EntModel> entModels){
-       /* iname,casecode,focusnumber,cardnum,businessentity,courtname,areaname,partytypename,gistid,regdate,gistunit,performance,disrupttypename,publishdate,duty,collectiondate,isinuse,inputtime,dutytext*/
-        String updateSql = "update cb_lostfaith_ent set iname = ?,casecode = ?,focusnumber=?,cardnum=?,businessentity=?,courtname=?,areaname=?,partytypename=?,gistid=?,regdate=?,gistunit=?,performance=?,disrupttypename=?,publishdate=?,duty=?,collectiondate=?,isinuse=?,inputtime=?,dutytext=? where id = ?";
+    public void updateEntDate(List<PersonModel> entModels){
+       /* id,iname,casecode,age,sexy,focusnumber,cardnum,courtname,areaname,patrytypename,gistid,regdate,gistunit,performance,disrupttypename,publishdate,duty,collectiondate,isinuse,inputtime,dutytext*/
+        String updateSql = "update cb_lostfaith_person set iname = ?,casecode = ?,age=?,sexy=?,focusnumber=?,cardnum=?,courtname=?,areaname=?,partytypename=?,gistid=?,regdate=?,gistunit=?,performance=?,disrupttypename=?,publishdate=?,duty = ?,collectiondate=?,isinuse=?,inputtime=?,dutytext=? where id = ?";
 
         if(entModels.size()==0){
             return;
@@ -152,27 +156,28 @@ public class EntDao {
 
         try {
             ps = conn2.prepareStatement(updateSql);
-            for(EntModel entModel:entModels) {
-                ps.setString(1, entModel.getIname());
-                ps.setString(2, entModel.getCasecode());
-                ps.setString(3, entModel.getFocusnumber());
-                ps.setString(4, entModel.getCardnum());
-                ps.setString(5, entModel.getBusinessentity());
-                ps.setString(6, entModel.getCourtname());
-                ps.setString(7, entModel.getAreaname());
-                ps.setString(8, entModel.getPartytypename());
-                ps.setString(9, entModel.getGistid());
-                ps.setString(10, entModel.getRegdate());
-                ps.setString(11, entModel.getGistunit());
-                ps.setString(12, entModel.getPerformance());
-                ps.setString(13, entModel.getDisrupttypename());
-                ps.setString(14, entModel.getPublishdate());
-                ps.setString(15, entModel.getDuty());
-                ps.setString(16, entModel.getCollectiondate());
-                ps.setString(17, entModel.getIsinuse());
-                ps.setString(18, entModel.getInputtime());
-                ps.setString(19, entModel.getDutytext());
-                ps.setString(20, entModel.getId());
+            for(PersonModel entModel:entModels) {
+                ps.setString(1,entModel.getIname());
+                ps.setString(2,entModel.getCasecode());
+                ps.setString(3,entModel.getAge());
+                ps.setString(4,entModel.getSexy());
+                ps.setString(5,entModel.getFocusnumber());
+                ps.setString(6,entModel.getCardnum());
+                ps.setString(7,entModel.getCourtname());
+                ps.setString(8,entModel.getAreaname());
+                ps.setString(9,entModel.getPartytypename());
+                ps.setString(10,entModel.getGistid());
+                ps.setString(11,entModel.getRegdate());
+                ps.setString(12,entModel.getGistunit());
+                ps.setString(13,entModel.getPerformance());
+                ps.setString(14,entModel.getDisrupttypename());
+                ps.setString(15,entModel.getPublishdate());
+                ps.setString(16,entModel.getDuty());
+                ps.setString(17,entModel.getCollectiondate());
+                ps.setString(18,entModel.getIsinuse());
+                ps.setString(19,entModel.getInputtime());
+                ps.setString(20,entModel.getDutytext());
+                ps.setString(21,entModel.getId());
                 ps.addBatch();
             }
             ps.executeBatch();
@@ -194,9 +199,9 @@ public class EntDao {
     }
 
     //根据id查找数据
-    public EntModel getResultById(String id){
-         EntModel entModel = new EntModel();
-         String checkSql = "select id,iname from cb_lostfaith_ent where id = ?";
+    public PersonModel getResultById(String id){
+        PersonModel entModel = new PersonModel();
+        String checkSql = "select id,iname from cb_lostfaith_person where id = ?";
 
         try {
             ps = conn2.prepareStatement(checkSql);
@@ -225,16 +230,16 @@ public class EntDao {
         return entModel;
     }
 
-    public void updateSyncData(List<EntModel> queryEnt) {
+    public void updateSyncData(List<PersonModel> queryEnt) {
 
         if(queryEnt.size()==0){
             return;
         }
 
-        String updateSql = "update cb_lostfaith_ent_daily set issynchorized = 1 where id = ?";
+        String updateSql = "update cb_lostfaith_person_daily set issynchorized = 1 where id = ?";
         try {
             ps = conn1.prepareStatement(updateSql);
-            for(EntModel entModel : queryEnt){
+            for(PersonModel entModel : queryEnt){
                 String id = entModel.getId();
                 ps.setString(1,entModel.getId());
                 ps.addBatch();
@@ -249,4 +254,5 @@ public class EntDao {
 
 
     }
+
 }

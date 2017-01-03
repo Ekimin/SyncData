@@ -2,7 +2,9 @@ package com.amarsoft.sync.lostfaith;
 
 import com.amarsoft.are.ARE;
 import com.amarsoft.dao.lostfaith.EntDao;
+import com.amarsoft.dao.lostfaith.PersonDao;
 import com.amarsoft.model.lostfaith.EntModel;
+import com.amarsoft.model.lostfaith.PersonModel;
 import com.amarsoft.sync.common.SyncData;
 
 import java.util.LinkedList;
@@ -12,19 +14,19 @@ import java.util.List;
  * Created by ryang on 2017/1/3.
  */
 
-//失信企业一级监控同步
-public class SyncEntDaily implements SyncData{
+//失信个人一级监控同步
+public class SyncPersonDaily implements SyncData{
 
     public void syncData() {
-        EntDao entDao = new EntDao();
+        PersonDao entDao = new PersonDao();
         int sleepTime = Integer.valueOf(ARE.getProperty("sleepTime"));
         while(true) {
             //获得需要同步的数据
             //存储需要插入的数据
-            List<EntModel> insertEnt = new LinkedList<EntModel>();
+            List<PersonModel> insertEnt = new LinkedList<PersonModel>();
             //存储需要更新的数据
-            List<EntModel> updateEnt = new LinkedList<EntModel>();
-            List<EntModel> queryEnt = entDao.getSyncData();
+            List<PersonModel> updateEnt = new LinkedList<PersonModel>();
+            List<PersonModel> queryEnt = entDao.getSyncData();
             if(queryEnt.size()==0){
                 ARE.getLog().info("数据库当前没有需要同步的数据，休息"+sleepTime+"秒");
                 try {
@@ -35,10 +37,10 @@ public class SyncEntDaily implements SyncData{
                 continue;
             }
 
-            for(EntModel entModel:queryEnt){
+            for(PersonModel entModel:queryEnt){
                 String id = entModel.getId();
                 String iname = entModel.getIname();
-                EntModel checkModel = entDao.getResultById(id);
+                PersonModel checkModel = entDao.getResultById(id);
                 //表示不存在
                 if(checkModel.getId()==null){
                     insertEnt.add(entModel);
@@ -67,7 +69,7 @@ public class SyncEntDaily implements SyncData{
 
     public static void main(String[] args) {
         ARE.init("etc/are.xml");
-        SyncData syncData = new SyncEntDaily();
+        SyncData syncData = new SyncPersonDaily();
         syncData.syncData();
     }
 }
