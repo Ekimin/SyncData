@@ -38,15 +38,15 @@ public class SyncEntDaily implements SyncData{
             }
 
             for(EntModel entModel:queryEnt){
-                String id = entModel.getID();
-                String iname = entModel.getINAME();
+                String id = entModel.getId();
+                String iname = entModel.getIname();
                 EntModel checkModel = entDao.getResultById(id);
                 //表示不存在
                 if(checkModel==null){
                     insertEnt.add(entModel);
                 }
                 //表示该id对应的iname没有发生变化
-                else if(checkModel.getINAME().equals(iname)){
+                else if(checkModel.getIname().equals(iname)){
                     continue;
                 }
                 //表示iname发生变化
@@ -61,8 +61,8 @@ public class SyncEntDaily implements SyncData{
             entDao.updateEntDate(updateEnt);
             ARE.getLog().info("更新数据完成");
             ARE.getLog().info("更新数据表中issynchorized字段");
-
-
+            updateSyncDao.updateSyncData(queryEnt);
+            ARE.getLog().info("更新issynchorized完成");
         }
 
     }
