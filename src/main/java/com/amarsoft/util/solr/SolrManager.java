@@ -17,10 +17,10 @@ import java.util.List;
  * author BY james@NJU 
  * date:2014-05-12
  */
-public class SolrImpl {
+public class SolrManager {
 	private SolrServer server;
 
-	public SolrImpl(String indexHost) {
+	public SolrManager(String indexHost) {
 		try{
 			this.server = new HttpSolrServer(indexHost);
 		}catch (Exception e){
@@ -30,7 +30,7 @@ public class SolrImpl {
 	}
 	
 	public static void main(String[] args) throws Exception{
-		SolrImpl solr=new SolrImpl("http://192.168.61.241:8070/solrlira");
+		SolrManager solr=new SolrManager("http://192.168.61.241:8070/solrlira");
 		List<String> serialNOs=new ArrayList<String>();
 		serialNOs.add("SZHB20160803969645000446005");
 		serialNOs.add("SZHB20160803712817000445996");
