@@ -1,14 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="fb50be15-8e39-4a67-a1c7-9ba4523eefea" name="Default" comment="Added bloomfilter">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/vcs.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/com/amarsoft/util/bloomfilter/BloomFilter.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/com/amarsoft/util/bloomfilter/BloomFilterFactory.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/com/amarsoft/util/bloomfilter/BloomFilterManager.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/com/amarsoft/util/bloomfilter/HashFunction.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/com/amarsoft/util/bloomfilter/MD5Hash.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/com/amarsoft/util/bloomfilter/imp/DefaultBloomFilterManager.java" />
+    <list default="true" id="fb50be15-8e39-4a67-a1c7-9ba4523eefea" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
@@ -876,12 +869,20 @@
       <option name="presentableId" value="Default" />
       <updated>1483419337913</updated>
       <workItem from="1483419339466" duration="533000" />
-      <workItem from="1483421600092" duration="355000" />
+      <workItem from="1483421600092" duration="378000" />
     </task>
+    <task id="LOCAL-00001" summary="Added bloomfilter">
+      <created>1483421969225</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1483421969225</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="888000" />
+    <option name="totallyTimeSpent" value="911000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
