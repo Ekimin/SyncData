@@ -18,17 +18,101 @@ public class ChinaExecutedModel {
     String SPIDERTIME;
     String ISINUSE;
     String INPUTTIME;
-    String REALTIME;
 
-    public String getSERIALNO(){
+    public String getSERIALNO() {
         return SERIALNO;
     }
-    public void setSERIALNO(String serialno){
-        this.SERIALNO = serialno;
+
+    public void setSERIALNO(String SERIALNO) {
+        this.SERIALNO = SERIALNO;
     }
 
+    public String getID() {
+        return ID;
+    }
 
+    public void setID(String ID) {
+        this.ID = ID;
+    }
 
+    public String getPNAME() {
+        return PNAME;
+    }
 
+    public void setPNAME(String PNAME) {
+        this.PNAME = PNAME;
+    }
+
+    public String getCASECODE() {
+        return CASECODE;
+    }
+
+    public void setCASECODE(String CASECODE) {
+        this.CASECODE = CASECODE;
+    }
+
+    public String getCASESTATE() {
+        return CASESTATE;
+    }
+
+    public void setCASESTATE(String CASESTATE) {
+        this.CASESTATE = CASESTATE;
+    }
+
+    public String getEXECCOURTNAME() {
+        return EXECCOURTNAME;
+    }
+
+    public void setEXECCOURTNAME(String EXECCOURTNAME) {
+        this.EXECCOURTNAME = EXECCOURTNAME;
+    }
+
+    public String getEXECMONEY() {
+        return EXECMONEY;
+    }
+
+    public void setEXECMONEY(String EXECMONEY) {
+        this.EXECMONEY = EXECMONEY;
+    }
+
+    public String getPARTYCARDNUM() {
+        return PARTYCARDNUM;
+    }
+
+    public void setPARTYCARDNUM(String PARTYCARDNUM) {
+        this.PARTYCARDNUM = PARTYCARDNUM;
+    }
+
+    public String getCASECREATETIME() {
+        return CASECREATETIME;
+    }
+
+    public void setCASECREATETIME(String CASECREATETIME) {
+        this.CASECREATETIME = CASECREATETIME;
+    }
+
+    public String getSPIDERTIME() {
+        return SPIDERTIME;
+    }
+
+    public void setSPIDERTIME(String SPIDERTIME) {
+        this.SPIDERTIME = SPIDERTIME;
+    }
+
+    public String getISINUSE() {
+        return ISINUSE;
+    }
+
+    public void setISINUSE(String ISINUSE) {
+        this.ISINUSE = ISINUSE;
+    }
+
+    public String getINPUTTIME() {
+        return INPUTTIME;
+    }
+
+    public void setINPUTTIME(String INPUTTIME) {
+        this.INPUTTIME = INPUTTIME;
+    }
 
 }
