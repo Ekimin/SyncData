@@ -18,34 +18,16 @@ import java.util.List;
 //被执行人数据库操作
 public class ExecutedDao {
 
-    static Connection conn1 = null;
-    static Connection conn2 = null;
-    static PreparedStatement ps = null;
-    static ResultSet rs = null;
-    static {
-        //数据库连接的初始化
-        try {
-            if(conn1 == null) {
-                conn1 = ARE.getDBConnection("bdfin");
-                conn1.setAutoCommit(false);
-            }
-            if(conn2 == null){
-                conn2 = ARE.getDBConnection("dsfin");
-                conn2.setAutoCommit(false);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-
     //获得需要同步的数据
     public List<ChinaExecutedModel> getSyncData(){
         List<ChinaExecutedModel> entModels = new LinkedList<ChinaExecutedModel>();
         int synOneTime = Integer.valueOf(ARE.getProperty("synOneTime"));
         String selectSql = "select * from cb_executed_daily where issynchorized = 0 order by spidertime desc limit 0,?";
-
+        Connection conn1 = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
         try {
+            conn1 = ARE.getDBConnection("bdfin");
             ps = conn1.prepareStatement(selectSql);
             ps.setInt(1,synOneTime);
             rs = ps.executeQuery();
@@ -76,6 +58,9 @@ public class ExecutedDao {
                 if (ps != null) {
                     ps.close();
                 }
+                if(conn1!=null){
+                    conn1.close();
+                }
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -90,8 +75,12 @@ public class ExecutedDao {
         if(entModels.size()==0){
             return;
         }
+        Connection conn2 = null;
+        PreparedStatement ps = null;
 
         try {
+            conn2 = ARE.getDBConnection("dsfin");
+            conn2.setAutoCommit(false);
             ps = conn2.prepareStatement(insertSql);
             for(ChinaExecutedModel entModel:entModels){
                 ps.setString(1,entModel.getSERIALNO());
@@ -120,6 +109,9 @@ public class ExecutedDao {
                 if(ps!=null) {
                     ps.close();
                 }
+                if(conn2!=null){
+                    conn2.close();
+                }
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -131,12 +123,15 @@ public class ExecutedDao {
     public void updateEntDate(List<ChinaExecutedModel> entModels){
        /* serialno,id,pname,casecode,casestate,execcourtname,execmoney,partycardnum,casecreatetime,spidertime,isinuse,inputtime*/
         String updateSql = "update cb_executed set pname = ?,casecode = ?,casestate=?,execcourtname=?,execmoney=?,partycardnum=?,casecreatetime=?,spidertime=?,isinuse=?,inputtime=? where id = ?";
-
+        Connection conn2 = null;
+        PreparedStatement ps = null;
         if(entModels.size()==0){
             return;
         }
 
         try {
+            conn2 = ARE.getDBConnection("dsfin");
+            conn2.setAutoCommit(false);
             ps = conn2.prepareStatement(updateSql);
             for(ChinaExecutedModel entModel:entModels) {
                 ps.setString(1, entModel.getPNAME());
@@ -163,6 +158,9 @@ public class ExecutedDao {
                 if(ps!=null) {
                     ps.close();
                 }
+                if(conn2!=null){
+                    conn2.close();
+                }
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -174,8 +172,11 @@ public class ExecutedDao {
     public ChinaExecutedModel getResultById(String id){
         ChinaExecutedModel entModel = new ChinaExecutedModel();
         String checkSql = "select id,pname from cb_executed where id = ?";
-
+        Connection conn2 = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
         try {
+            conn2 = ARE.getDBConnection("dsfin");
             ps = conn2.prepareStatement(checkSql);
             ps.setString(1,id);
             rs = ps.executeQuery();
@@ -194,6 +195,9 @@ public class ExecutedDao {
                 if(ps!=null){
                     ps.close();
                 }
+                if(conn2!=null){
+                    conn2.close();
+                }
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -207,9 +211,13 @@ public class ExecutedDao {
         if(queryEnt.size()==0){
             return;
         }
+        Connection conn1 = null;
+        PreparedStatement ps = null;
 
         String updateSql = "update cb_executed_daily set issynchorized = 1 where id = ?";
         try {
+            conn1 = ARE.getDBConnection("bdfin");
+            conn1.setAutoCommit(false);
             ps = conn1.prepareStatement(updateSql);
             for(ChinaExecutedModel entModel : queryEnt){
                 String id = entModel.getID();
@@ -222,6 +230,18 @@ public class ExecutedDao {
 
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+        finally {
+            try {
+                if(ps!=null) {
+                    ps.close();
+                }
+                if(conn1!=null){
+                    conn1.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
 }

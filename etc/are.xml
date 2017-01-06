@@ -21,8 +21,8 @@
         <Property name="HBASE_TABLE" value="courtbulletinCZ"/>
         <Property name="HBASE_FAMILY" value="name"/>
         <Property name="QUALIFIER" value="PDESC"/>
-        <Property name="synOneTime" value="5"/>
-        <Property name="sleepTime" value="2"/>
+        <Property name="synOneTime" value="500"/>
+        <Property name="sleepTime" value="60"/>
     </SystemProperties>
 
     <!-- ARE 服务将在初始化时，被装载 -->

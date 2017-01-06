@@ -17,34 +17,17 @@ import java.util.List;
 
 //失信个人数据库操作
 public class PersonDao {
-    static Connection conn1 = null;
-    static Connection conn2 = null;
-    static PreparedStatement ps = null;
-    static ResultSet rs = null;
-    static {
-        //数据库连接的初始化
-        try {
-            if(conn1 == null) {
-                conn1 = ARE.getDBConnection("bdfin");
-                conn1.setAutoCommit(false);
-            }
-            if(conn2 == null){
-                conn2 = ARE.getDBConnection("dsfin");
-                conn2.setAutoCommit(false);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-
     //获得需要同步的数据
     public List<PersonModel> getSyncData(){
+        Connection conn1 = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
         List<PersonModel> entModels = new LinkedList<PersonModel>();
         int synOneTime = Integer.valueOf(ARE.getProperty("synOneTime"));
         String selectSql = "select * from cb_lostfaith_person_daily where issynchorized = 0 order by collectiondate desc limit 0,?";
 
         try {
+            conn1 = ARE.getDBConnection("bdfin");
             ps = conn1.prepareStatement(selectSql);
             ps.setInt(1,synOneTime);
             rs = ps.executeQuery();
@@ -84,6 +67,9 @@ public class PersonDao {
                 if (ps != null) {
                     ps.close();
                 }
+                if(conn1!=null){
+                    conn1.close();
+                }
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -94,13 +80,16 @@ public class PersonDao {
 
     //进行插入操作
     public  void insertEntData(List<PersonModel> entModels){
-
+        Connection conn2 = null;
+        PreparedStatement ps = null;
         String insertSql = "insert into cb_lostfaith_person(id,iname,casecode,age,sexy,focusnumber,cardnum,courtname,areaname,partytypename,gistid,regdate,gistunit,performance,disrupttypename,publishdate,duty,collectiondate,isinuse,inputtime,dutytext) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
         if(entModels.size()==0){
             return;
         }
 
         try {
+            conn2 = ARE.getDBConnection("dsfin");
+            conn2.setAutoCommit(false);
             ps = conn2.prepareStatement(insertSql);
             for(PersonModel entModel:entModels){
                 ps.setString(1,entModel.getId());
@@ -138,6 +127,9 @@ public class PersonDao {
                 if(ps!=null) {
                     ps.close();
                 }
+                if(conn2!=null){
+                    conn2.close();
+                }
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -148,13 +140,18 @@ public class PersonDao {
     //进行更新操作
     public void updateEntDate(List<PersonModel> entModels){
        /* id,iname,casecode,age,sexy,focusnumber,cardnum,courtname,areaname,patrytypename,gistid,regdate,gistunit,performance,disrupttypename,publishdate,duty,collectiondate,isinuse,inputtime,dutytext*/
-        String updateSql = "update cb_lostfaith_person set iname = ?,casecode = ?,age=?,sexy=?,focusnumber=?,cardnum=?,courtname=?,areaname=?,partytypename=?,gistid=?,regdate=?,gistunit=?,performance=?,disrupttypename=?,publishdate=?,duty = ?,collectiondate=?,isinuse=?,inputtime=?,dutytext=? where id = ?";
+         Connection conn2 = null;
+         PreparedStatement ps = null;
+
+       String updateSql = "update cb_lostfaith_person set iname = ?,casecode = ?,age=?,sexy=?,focusnumber=?,cardnum=?,courtname=?,areaname=?,partytypename=?,gistid=?,regdate=?,gistunit=?,performance=?,disrupttypename=?,publishdate=?,duty = ?,collectiondate=?,isinuse=?,inputtime=?,dutytext=? where id = ?";
 
         if(entModels.size()==0){
             return;
         }
 
         try {
+            conn2 = ARE.getDBConnection("dsfin");
+            conn2.setAutoCommit(false);
             ps = conn2.prepareStatement(updateSql);
             for(PersonModel entModel:entModels) {
                 ps.setString(1,entModel.getIname());
@@ -191,6 +188,9 @@ public class PersonDao {
                 if(ps!=null) {
                     ps.close();
                 }
+                if(conn2!=null){
+                    conn2.close();
+                }
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -201,9 +201,13 @@ public class PersonDao {
     //根据id查找数据
     public PersonModel getResultById(String id){
         PersonModel entModel = new PersonModel();
+        Connection conn2 = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
         String checkSql = "select id,iname from cb_lostfaith_person where id = ?";
 
         try {
+            conn2 = ARE.getDBConnection("dsfin");
             ps = conn2.prepareStatement(checkSql);
             ps.setString(1,id);
             rs = ps.executeQuery();
@@ -222,6 +226,9 @@ public class PersonDao {
                 if(ps!=null){
                     ps.close();
                 }
+                if(conn2!=null){
+                    conn2.close();
+                }
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -231,6 +238,8 @@ public class PersonDao {
     }
 
     public void updateSyncData(List<PersonModel> queryEnt) {
+        Connection conn1 = null;
+        PreparedStatement ps = null;
 
         if(queryEnt.size()==0){
             return;
@@ -238,6 +247,8 @@ public class PersonDao {
 
         String updateSql = "update cb_lostfaith_person_daily set issynchorized = 1 where id = ?";
         try {
+            conn1 = ARE.getDBConnection("bdfin");
+            conn1.setAutoCommit(false);
             ps = conn1.prepareStatement(updateSql);
             for(PersonModel entModel : queryEnt){
                 String id = entModel.getId();
@@ -250,6 +261,18 @@ public class PersonDao {
 
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+        finally {
+            try {
+                if(ps!=null) {
+                    ps.close();
+                }
+                if(conn1!=null){
+                    conn1.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
 
 

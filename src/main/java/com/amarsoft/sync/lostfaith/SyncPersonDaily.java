@@ -11,7 +11,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Created by ryang on 2017/1/3.
+ * Created by ryang on 2017/1/3.cb_lostfaith_person_daily
  */
 
 //失信个人一级监控同步

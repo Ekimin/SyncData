@@ -16,7 +16,7 @@ import java.util.List;
 
 //针对失信企业的数据库操作
 public class EntDao {
-    static Connection conn1 = null;
+  /*  static Connection conn1 = null;
     static Connection conn2 = null;
     static PreparedStatement ps = null;
     static ResultSet rs = null;
@@ -34,7 +34,7 @@ public class EntDao {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
 
     //获得需要同步的数据
@@ -42,8 +42,11 @@ public class EntDao {
         List<EntModel> entModels = new LinkedList<EntModel>();
         int synOneTime = Integer.valueOf(ARE.getProperty("synOneTime"));
         String selectSql = "select * from cb_lostfaith_ent_daily where issynchorized = 0 order by collectiondate desc limit 0,?";
-
+        Connection conn1 = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
         try {
+            conn1 = ARE.getDBConnection("bdfin");
             ps = conn1.prepareStatement(selectSql);
             ps.setInt(1,synOneTime);
             rs = ps.executeQuery();
@@ -82,6 +85,9 @@ public class EntDao {
                 if (ps != null) {
                     ps.close();
                 }
+                if(conn1!=null){
+                    conn1.close();
+                }
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -96,8 +102,11 @@ public class EntDao {
         if(entModels.size()==0){
             return;
         }
-
+        Connection conn2 = null;
+        PreparedStatement ps = null;
         try {
+            conn2 = ARE.getDBConnection("dsfin");
+            conn2.setAutoCommit(false);
             ps = conn2.prepareStatement(insertSql);
             for(EntModel entModel:entModels){
                 ps.setString(1,entModel.getId());
@@ -134,6 +143,9 @@ public class EntDao {
                 if(ps!=null) {
                     ps.close();
                 }
+                if(conn2!=null){
+                    conn2.close();
+                }
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -149,8 +161,12 @@ public class EntDao {
         if(entModels.size()==0){
             return;
         }
+        Connection conn2 = null;
+        PreparedStatement ps = null;
 
         try {
+            conn2 = ARE.getDBConnection("dsfin");
+            conn2.setAutoCommit(false);
             ps = conn2.prepareStatement(updateSql);
             for(EntModel entModel:entModels) {
                 ps.setString(1, entModel.getIname());
@@ -186,6 +202,9 @@ public class EntDao {
                 if(ps!=null) {
                     ps.close();
                 }
+                if(conn2!=null){
+                    conn2.close();
+                }
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -197,8 +216,11 @@ public class EntDao {
     public EntModel getResultById(String id){
          EntModel entModel = new EntModel();
          String checkSql = "select id,iname from cb_lostfaith_ent where id = ?";
-
+         Connection conn2 = null;
+         PreparedStatement ps = null;
+         ResultSet rs = null;
         try {
+            conn2 = ARE.getDBConnection("dsfin");
             ps = conn2.prepareStatement(checkSql);
             ps.setString(1,id);
             rs = ps.executeQuery();
@@ -217,6 +239,9 @@ public class EntDao {
                 if(ps!=null){
                     ps.close();
                 }
+                if (conn2 != null) {
+                    conn2.close();
+                }
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -230,9 +255,13 @@ public class EntDao {
         if(queryEnt.size()==0){
             return;
         }
+        Connection conn1 = null;
+        PreparedStatement ps = null;
 
         String updateSql = "update cb_lostfaith_ent_daily set issynchorized = 1 where id = ?";
         try {
+            conn1 = ARE.getDBConnection("bdfin");
+            conn1.setAutoCommit(false);
             ps = conn1.prepareStatement(updateSql);
             for(EntModel entModel : queryEnt){
                 String id = entModel.getId();
@@ -245,6 +274,18 @@ public class EntDao {
 
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+        finally {
+            try {
+                if(ps!=null) {
+                    ps.close();
+                }
+                if(conn1!=null){
+                    conn1.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
 
 
