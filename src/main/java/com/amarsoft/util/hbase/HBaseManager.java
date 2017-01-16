@@ -5,6 +5,8 @@ import com.amarsoft.are.ARE;
 import com.amarsoft.are.lang.StringX;
 import com.amarsoft.model.common.FileModel;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.Cell;
+import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.*;
@@ -90,7 +92,7 @@ public class HBaseManager {
      */
     public void getConnect(String tableName) {
         try {
-            ARE.getLog().info("开始建立connection  =====> tableName:" + tableName); //TODO: test only?
+            //ARE.getLog().info("开始建立connection  =====> tableName:" + tableName);
             conn = ConnectionFactory.createConnection(conf);
             table = conn.getTable(TableName.valueOf(tableName));
         } catch (IOException e) {
@@ -111,6 +113,42 @@ public class HBaseManager {
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    /**
+     * 遍历输出表中的值
+     */
+    public void scanTable() {
+        Scan scan = new Scan();
+        try {
+            ResultScanner resultScanner = table.getScanner(scan);
+            for (Result rs :
+                    resultScanner) {
+                try {
+                    printResult(rs);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 打印Result对象中的值
+     * @param result
+     * @throws Exception
+     */
+    public static void printResult(Result result) throws Exception {
+        for (Cell cell : result.rawCells()) {
+            System.out.print("行健: " + new String(CellUtil.cloneRow(cell)));
+            System.out.print(" 列簇: " + new String(CellUtil.cloneFamily(cell)));
+            System.out.print(" 列: " + new String(CellUtil.cloneQualifier(cell)));
+            System.out.print(" 值: " + new String(CellUtil.cloneValue(cell)));
+            System.out.println(" 时间戳: " + cell.getTimestamp());
         }
     }
 
@@ -172,7 +210,7 @@ public class HBaseManager {
      * @return
      */
     public String getValue(String serialNo, String field) {
-        if(conn == null || table == null){
+        if (conn == null || table == null) {
             ARE.getLog().debug("请先建立connection和Table");
             return null;
         }
@@ -237,15 +275,16 @@ public class HBaseManager {
 //        HBaseManager.testHbase();
 //    }
 
-    public static void testHbase() {
+    public static void testHbase(String serialno) {
         ARE.init();
         String zkHost = ARE.getProperty("ZK_HOST");
         String zkPort = ARE.getProperty("ZK_PORT");
-        String tableName = "courtbulletinCZ";
-        String family = "name";
-        String qualifier = "PDESC";
+        String HTABLE = ARE.getProperty("HBASE_TABLE");
+        String HFAMILY = ARE.getProperty("HBASE_FAMILY");
+        String QUALIFIER = ARE.getProperty("QUALIFIER");
+
         HBaseManager hBaseManager = new HBaseManager();
-        String value = hBaseManager.getValueByNo("ZCSZCLOUD2016102302591779", qualifier);
+        String value = hBaseManager.getValueByNo(serialno, "content");
 
         System.out.println(value);
 
