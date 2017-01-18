@@ -21,9 +21,47 @@ import java.util.List;
  */
 public class DataManager {
 
+    public int getYunDataNumByDateRange(String dataBase, String minDate, String maxDate) {
+        String sql = "SELECT COUNT(1) FROM COURTBULLETIN WHERE COLLECTIONDATE > '" + minDate +
+                "' AND COLLECTIONDATE < '" + maxDate + "' AND ISSYNCHED = 'N'";
+        ARE.getLog().info("SearchSQL=" + sql);
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            conn = ARE.getDBConnection(dataBase);
+            ps = conn.prepareStatement(sql);
+            rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+        }
+        return -1;
+    }
+
     /**
      * 按同步截止时间获取指定数据库中数据的数量
      * <li>表名COURTBULLETIN_QY</li>
+     * 25库
      *
      * @param dataBase
      * @param maxDate
@@ -42,8 +80,7 @@ public class DataManager {
             rs = ps.executeQuery();
 
             if (rs.next()) {
-                int dataNum = rs.getInt(1);
-                return dataNum;
+                return rs.getInt(1);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -87,8 +124,7 @@ public class DataManager {
             rs = ps.executeQuery();
 
             if (rs.next()) {
-                int dataNum = rs.getInt(1);
-                return dataNum;
+                return rs.getInt(1);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -111,6 +147,112 @@ public class DataManager {
         return -1;
     }
 
+    /**
+     * 从27库中取中国裁判文书网数据
+     *
+     * @param database
+     * @param minDate
+     * @param maxDate
+     * @param start
+     * @param batchSize
+     * @return
+     */
+    public List<DataModel> getYunDataByDateRange(String database, String minDate, String maxDate, int start, int batchSize) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        List<DataModel> dataModelList = new LinkedList<DataModel>();
+//        String status = "waiting"; //这个是标志等待同步的字段
+
+        String sql = "select SERIALNO,PTYPE,COURT,PARTY,PDATE,PDESC,DATASOURCE,CASENO,DEPARTMENT,CASEDATE,PLAINTIFF," +
+                "AGENT,SECRETARY,CHIEFJUDGE,JUDGE,NOTICEADDR,DOCUCLASS,TARGET,TARGETTYPE,TARGETAMOUNT,TELNO,PROVINCE," +
+                "CITY,FILEPATH,CASEREASON,COLLECTIONDATE,DEALDATE,DEALPERSON,COURTROOM,HTMLFILEPATH,QDATE," +
+                "DOCUMENTCLASS,CASELEVEL,CARDNO,IPNAME,BATCHNO,CRAWLERID,ISSYNCHED from COURTBULLETIN where COLLECTIONDATE > ? " +
+                "and COLLECTIONDATE<? and ISSYNCHED = 'N' and DATASOURCE='中国裁判文书网' order by collectiondate " +
+                "limit ?,?";
+        ARE.getLog().info("开始从数据库获取数据>>>>>>>>");
+        try {
+            conn = ARE.getDBConnection(database);
+            ps = conn.prepareStatement(sql);
+            ps.setString(1, minDate);
+            ps.setString(2, maxDate);
+            ps.setInt(3, start);
+            ps.setInt(4, batchSize);
+            rs = ps.executeQuery();
+
+            String serialNoYun = ""; //同步27数据需要在serialno中加入字符以区别
+            serialNoYun = "CLOUD";
+
+            //批量加入ListModel
+            while (rs.next()) {
+                DataModel dataModel = new DataModel();
+                String newSerialNo = rs.getString("SERIALNO");
+                newSerialNo = newSerialNo.substring(0, 4) + serialNoYun + newSerialNo.substring(4, newSerialNo.length());
+                //ARE.getLog().info("test:serialyunno====>" + newSerialNo);
+                dataModel.setSerialNo(newSerialNo);
+                dataModel.setpType(rs.getString("PTYPE"));
+                dataModel.setCourt(rs.getString("COURT"));
+                dataModel.setParty(rs.getString("PARTY"));
+                dataModel.setpDate(rs.getString("PDATE"));
+                dataModel.setpDesc(rs.getString("PDESC"));
+                dataModel.setDataSource(rs.getString("DATASOURCE"));
+                dataModel.setCaseNo(rs.getString("CASENO"));
+                dataModel.setDepartment(rs.getString("DEPARTMENT"));
+                dataModel.setCaseDate(rs.getString("CASEDATE"));
+                dataModel.setPlaintiff(rs.getString("PLAINTIFF"));
+                dataModel.setAgent(rs.getString("AGENT"));
+                dataModel.setSecretary(rs.getString("SECRETARY"));
+                dataModel.setChiefJudge(rs.getString("CHIEFJUDGE"));
+                dataModel.setJudge(rs.getString("JUDGE"));
+                dataModel.setNoticeAddress(rs.getString("NOTICEADDR"));
+                dataModel.setDocumentClass(rs.getString("DOCUCLASS"));
+                dataModel.setTarget(rs.getString("TARGET"));
+                dataModel.setTargetType(rs.getString("TARGETTYPE"));
+                dataModel.setTargetAmount(rs.getString("TARGETAMOUNT"));
+                dataModel.setTelNo(rs.getString("TELNO"));
+                dataModel.setProvince(rs.getString("PROVINCE"));
+                dataModel.setCity(rs.getString("CITY"));
+                dataModel.setFilePath(rs.getString("FILEPATH"));
+                dataModel.setCaseReason(rs.getString("CASEREASON"));
+                dataModel.setCollectionDate(rs.getString("COLLECTIONDATE"));
+                dataModel.setDealDate(rs.getString("DEALDATE"));
+                dataModel.setDealPerson(rs.getString("DEALPERSON"));
+                dataModel.setCourtRoom(rs.getString("COURTROOM"));
+                dataModel.setHTMLFilePath(rs.getString("HTMLFILEPATH"));
+                dataModel.setqDate(rs.getString("QDATE"));
+                dataModel.setDocumentClass(rs.getString("DOCUMENTCLASS"));
+                dataModel.setCaseLevel(rs.getString("CASELEVEL"));
+                dataModel.setCardNo(rs.getString("CARDNO"));
+                dataModel.setIPName(rs.getString("IPNAME"));
+                dataModel.setBatchNo(rs.getString("BATCHNO"));
+                dataModel.setCrawlerID(rs.getString("CRAWLERID"));
+                dataModel.setIsSynched(rs.getString("ISSYNCHED"));//是否已经同步了:Y-已经同步过了，N-尚未
+                dataModelList.add(dataModel);
+            }
+            ARE.getLog().info("从数据库获取数据完成<<<<<<<<");
+
+        } catch (SQLException e) {
+            ARE.getLog().error("从数据库获取数据出错", e);
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return dataModelList;
+
+
+    }
 
     /**
      * 按截止时间获取指定数据库中需要同步的数据
@@ -190,18 +332,18 @@ public class DataManager {
 
         } catch (SQLException e) {
             e.printStackTrace();
-        }finally {
-            try{
-                if(rs != null){
+        } finally {
+            try {
+                if (rs != null) {
                     rs.close();
                 }
-                if(ps != null){
+                if (ps != null) {
                     ps.close();
                 }
-                if(conn != null){
+                if (conn != null) {
                     conn.close();
                 }
-            }catch(SQLException e){
+            } catch (SQLException e) {
                 e.printStackTrace();
             }
         }
@@ -314,29 +456,21 @@ public class DataManager {
         return dataModelList;
     }
 
-    /**
-     * 向数据库中插入数据,并更新标志位
-     * <li>目前25库正文存的是路径，同步到生产时候也存路径（直接同步pdesc字段）</li>
-     *
-     * @param dataModelList 数据list
-     * @param sourceDB 源数据库
-     * @param destDB 目标数据库
-     */
-    public void insertData(List<DataModel> dataModelList, String sourceDB, String destDB) {
+
+    public void insertYunData(List<DataModel> dataModelList, String sourceDB, String destDB) {
         Connection conn_Dest = null;
         Connection conn_Sour = null;
         PreparedStatement ps_Insert = null;
         PreparedStatement ps_Status = null;
 
-        String sql_Insert = "insert into COURTBULLETIN_QY(SERIALNO,PTYPE,COURT,PARTY,PDATE,PDESC,DATASOURCE,CASENO,DEPARTMENT," +
+        String sql_Insert = "insert into COURTBULLETIN(SERIALNO,PTYPE,COURT,PARTY,PDATE,PDESC,DATASOURCE,CASENO,DEPARTMENT," +
                 "CASEDATE,PLAINTIFF,AGENT,SECRETARY,CHIEFJUDGE,JUDGE,NOTICEADDR,DOCUCLASS,TARGET,TARGETTYPE,TARGETAMOUNT," +
                 "TELNO,PROVINCE,CITY,CASEREASON,COLLECTIONDATE,DEALDATE,DEALPERSON,HTMLFILEPATH,QDATE,DOCUMENTCLASS," +
                 "CASELEVEL,CARDNO,IPNAME,BATCHNO,CRAWLERID) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
-        String sql_Status = "UPDATE COURTBULLETIN_QY SET STATUS = ? WHERE SERIALNO = ?";
-        String status1 = "invalid";
-        String status2 = "success";
-
+        String sql_Status = "UPDATE COURTBULLETIN SET ISSYNCHED = ? WHERE SERIALNO = ?";
+        String status1 = "R"; //重复
+        String status2 = "Y"; //同步成功
 
         try {
             conn_Sour = ARE.getDBConnection(sourceDB);
@@ -346,14 +480,151 @@ public class DataManager {
             conn_Dest.setAutoCommit(false);
             conn_Sour.setAutoCommit(false);
             int updateBatch = 500; //500一批提交更新
-            int currCount = 0;
+            int statusCount = 0;
+            int insertCount = 0;
+
+            for (DataModel dataModel : dataModelList) {
+                String serialNo = dataModel.getSerialNo();
+                //被布隆过滤的数据不入库
+                if (!StringX.isEmpty(dataModel.getURLStatus()) && dataModel.getURLStatus().equals("R")) {
+                    ps_Status.setString(1, status1);
+                    ps_Status.setString(2, serialNo);
+                    ps_Status.addBatch();
+                    statusCount++;
+                    if (statusCount >= updateBatch) {
+                        ps_Status.executeBatch();
+                        statusCount = 0;
+                    }
+                    continue;
+                }
+
+                ps_Insert.setString(1, serialNo);
+                ps_Insert.setString(2, dataModel.getpType());
+                ps_Insert.setString(3, dataModel.getCourt());
+                ps_Insert.setString(4, dataModel.getParty());
+                ps_Insert.setString(5, dataModel.getpDate());
+                ps_Insert.setString(6, dataModel.getSerialNo());// 27同步生产, pdesc字段同步serialno
+                ps_Insert.setString(7, dataModel.getDataSource());
+                ps_Insert.setString(8, dataModel.getCaseNo());
+                ps_Insert.setString(9, dataModel.getDepartment());
+                ps_Insert.setString(10, dataModel.getCaseDate());
+                ps_Insert.setString(11, dataModel.getPlaintiff());
+                ps_Insert.setString(12, dataModel.getAgent());
+                ps_Insert.setString(13, dataModel.getSecretary());
+                ps_Insert.setString(14, dataModel.getChiefJudge());
+                ps_Insert.setString(15, dataModel.getJudge());
+                ps_Insert.setString(16, dataModel.getNoticeAddress());
+                ps_Insert.setString(17, dataModel.getDocuClass());
+                ps_Insert.setString(18, dataModel.getTarget());
+                ps_Insert.setString(19, dataModel.getTargetType());
+                ps_Insert.setString(20, dataModel.getTargetAmount());
+                ps_Insert.setString(21, dataModel.getTelNo());
+                ps_Insert.setString(22, dataModel.getProvince());
+                ps_Insert.setString(23, dataModel.getCity());
+                ps_Insert.setString(24, dataModel.getCaseReason());
+                ps_Insert.setString(25, dataModel.getCollectionDate());
+                ps_Insert.setString(26, dataModel.getDealDate());
+                ps_Insert.setString(27, dataModel.getDealPerson());
+                ps_Insert.setString(28, dataModel.getHTMLFilePath());
+                ps_Insert.setString(29, dataModel.getqDate());
+                ps_Insert.setString(30, dataModel.getDocumentClass());
+                ps_Insert.setString(31, dataModel.getCaseLevel());
+                ps_Insert.setString(32, dataModel.getCardNo());
+                ps_Insert.setString(33, dataModel.getIPName());
+                ps_Insert.setString(34, dataModel.getBatchNo());
+                ps_Insert.setString(35, dataModel.getCrawlerID());
+
+                ps_Insert.addBatch();
+                ps_Status.setString(1, status2);
+                //因为云上数据同步到生产的serialno中间加了CLOUD，所以更新原来表的时候需要去掉
+
+                String rawSerialNo = serialNo.substring(0,4) + serialNo.substring(9);
+                ps_Status.setString(2, rawSerialNo);
+                ps_Status.addBatch();
+                insertCount++;
+                if (insertCount >= updateBatch) {
+                    ps_Insert.executeBatch();
+                    insertCount = 0;
+                }
+                statusCount++;
+                if (statusCount >= updateBatch) {
+                    ps_Status.executeBatch();
+                    statusCount = 0;
+                }
+            }
+            ps_Insert.executeBatch();
+            ps_Status.executeBatch();
+            conn_Dest.commit();
+            conn_Sour.commit();
+
+        } catch (SQLException e) {
+            ARE.getLog().error("同步生产数据库出错", e);
+            e.printStackTrace();
+        } finally {
+            try {
+                if (ps_Insert != null) {
+                    ps_Insert.close();
+                }
+                if (ps_Status != null) {
+                    ps_Status.close();
+                }
+                if (conn_Dest != null) {
+                    conn_Dest.close();
+                }
+                if (conn_Sour != null) {
+                    conn_Sour.close();
+                }
+            } catch (SQLException e) {
+                ARE.getLog().error("同步生产数据库时关闭数据库连接出错", e);
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * 向数据库中插入数据,并更新标志位
+     * <li>目前25库正文存的是路径，同步到生产时候也存路径（直接同步pdesc字段）</li>
+     *
+     * @param dataModelList 数据list
+     * @param sourceDB      源数据库
+     * @param destDB        目标数据库
+     */
+    public void insertData(List<DataModel> dataModelList, String sourceDB, String destDB) {
+        Connection conn_Dest = null;
+        Connection conn_Sour = null;
+        PreparedStatement ps_Insert = null;
+        PreparedStatement ps_Status = null;
+
+        String sql_Insert = "insert into COURTBULLETIN(SERIALNO,PTYPE,COURT,PARTY,PDATE,PDESC,DATASOURCE,CASENO,DEPARTMENT," +
+                "CASEDATE,PLAINTIFF,AGENT,SECRETARY,CHIEFJUDGE,JUDGE,NOTICEADDR,DOCUCLASS,TARGET,TARGETTYPE,TARGETAMOUNT," +
+                "TELNO,PROVINCE,CITY,CASEREASON,COLLECTIONDATE,DEALDATE,DEALPERSON,HTMLFILEPATH,QDATE,DOCUMENTCLASS," +
+                "CASELEVEL,CARDNO,IPNAME,BATCHNO,CRAWLERID) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+
+        String sql_Status = "UPDATE COURTBULLETIN_QY SET STATUS = ? WHERE SERIALNO = ?";
+        String status1 = "invalid";
+        String status2 = "success";
+
+        try {
+            conn_Sour = ARE.getDBConnection(sourceDB);
+            conn_Dest = ARE.getDBConnection(destDB);
+            ps_Insert = conn_Dest.prepareStatement(sql_Insert);
+            ps_Status = conn_Sour.prepareStatement(sql_Status);
+            conn_Dest.setAutoCommit(false);
+            conn_Sour.setAutoCommit(false);
+            int updateBatch = 500; //500一批提交更新
+            int insertCount = 0;
+            int statusCount = 0;
             for (DataModel dataModel : dataModelList) {
                 //被布隆过滤的数据不入库
                 if (!StringX.isEmpty(dataModel.getURLStatus()) && dataModel.getURLStatus().equals("R")) {
                     ps_Status.setString(1, status1);
                     ps_Status.setString(2, dataModel.getSerialNo());
                     ps_Status.addBatch();
-                    currCount++;
+                    statusCount++;
+                    if (statusCount >= updateBatch) {
+                        ps_Status.executeBatch();
+                        statusCount = 0;
+                    }
                     continue;
                 }
 
@@ -397,10 +668,15 @@ public class DataManager {
                 ps_Status.setString(1, status2);
                 ps_Status.setString(2, dataModel.getSerialNo());
                 ps_Status.addBatch();
-                currCount++;
-                if (currCount >= updateBatch) {
+                insertCount++;
+                if (insertCount >= updateBatch) {
                     ps_Insert.executeBatch();
-                    currCount = 0;
+                    insertCount = 0;
+                }
+                statusCount++;
+                if (statusCount >= updateBatch) {
+                    ps_Status.executeBatch();
+                    statusCount = 0;
                 }
             }
             ps_Insert.executeBatch();
@@ -421,7 +697,7 @@ public class DataManager {
                 if (conn_Dest != null) {
                     conn_Dest.close();
                 }
-                if (conn_Sour != null){
+                if (conn_Sour != null) {
                     conn_Sour.close();
                 }
             } catch (SQLException e) {

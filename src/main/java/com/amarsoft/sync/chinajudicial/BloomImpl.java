@@ -51,7 +51,7 @@ public class BloomImpl {
             } else {
                 if (bloomFilterManager.isContain(url)) {
                     dataModel.setURLStatus("R"); //重复
-                    ARE.getLog().info("URL重复：" + url); //TODO:test only
+                    //ARE.getLog().info("URL重复：" + url); //TODO:test only
                 } else {
                     //不重复，需要同步
                     dataModel.setURLStatus("T");
@@ -75,7 +75,7 @@ public class BloomImpl {
     public void addBloom(List<DataModel> dataModelList){
         for (DataModel dataModel : dataModelList){
             String urlStatus = dataModel.getURLStatus();
-            if(urlStatus != null && urlStatus.equals("R")){
+            if(urlStatus != null && urlStatus.equals("T")){
                 this.bloomFilterManager.add(dataModel.getNoticeAddress());
             }
         }

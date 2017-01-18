@@ -8,10 +8,11 @@
 
         <!-- 自定义属性 -->
         <Property name="SYNC_DATABASE" value="25_bddata"/> <!-- 指定同步数据库，具体连接信息在dbconfig.xml中 -->
+        <Property name="SYNC_DATABASE_YUN" value="27_yun" />
         <Property name="BATCH_SIZE" value="1000"/> <!-- 每次处理的量 -->
-        <Property name="MIN_DATE" value="2016/10/14 18:30:00"/> <!-- 同步数据时间区间下限 -->
-        <Property name="MAX_DATE" value="2016/12/01 00:00:00"/> <!-- 同步数据时间区间上限 -->
-        <Property name="SLEEP_TIME" value="60" /><!-- 睡眠时间，单位：秒 -->
+        <Property name="MIN_DATE" value="2016/12/01 00:00:00"/> <!-- 同步数据时间区间下限 -->
+        <Property name="MAX_DATE" value="2017/01/01 00:00:00"/> <!-- 同步数据时间区间上限 -->
+        <Property name="SLEEP_TIME" value="5" /><!-- 睡眠时间，单位：秒 -->
         <!-- 设置布隆过滤器路径 -->
         <Property name="PATH" value="{$ARE.APP_HOME}/src/main/resources/bloomfilter.bloom"/>
         <!-- 布隆过滤器同步批次数量 -->
@@ -25,7 +26,7 @@
         <Property name="HBASE_FAMILY" value="name"/>
         <Property name="QUALIFIER" value="content"/>
         <Property name="synOneTime" value="500"/>
-        <Property name="sleepTime" value="60"/>
+        <Property name="sleepTime" value="60"/> <!-- 单位：秒 -->
     </SystemProperties>
 
     <!-- ARE 服务将在初始化时，被装载 -->

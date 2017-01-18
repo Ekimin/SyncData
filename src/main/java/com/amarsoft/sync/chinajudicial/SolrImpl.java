@@ -26,7 +26,7 @@ public class SolrImpl {
     /**
      * 同步solr
      * <li>文章正文数据来自Hbase</li>
-     *
+     * 公用方法
      * @param dataModelList
      * @param hBaseManager
      */
