@@ -1,2 +1,2 @@
 # SyncData
-Synchronize data automatically.
+Synchronize cj data automatically.
