@@ -12,7 +12,10 @@ public class HbaseTest {
         ARE.init();
        // HBaseManager.testHbase("MZCSZ2016120903027274");
         HBaseManager hBaseManager = new HBaseManager();
-        hBaseManager.getConnect(ARE.getProperty("HBASE_TABLE"));
+       // hBaseManager.getConnect(ARE.getProperty("HBASE_TABLE"));
+        hBaseManager.getConnect("courtbulletinprd");
         hBaseManager.scanTable();
+
+        //System.out.print(hBaseManager.getValue("2014101700001578", "PDESC"));
     }
 }

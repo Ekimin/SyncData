@@ -20,8 +20,10 @@ import java.util.List;
  * Created by ymhe on 2016/12/27.
  */
 public class DataManager {
+    public static String tableName25 = "COURTBULLETIN"; //TODO:测试用78
+    public static String tableName = "COURTBULLETIN_QY";
 
-    public int getYunDataNumByDateRange(String dataBase, String minDate, String maxDate) {
+    public int getYunDataNumByDateRange(String dataBase, String minDate, String maxDate) throws SQLException {
         String sql = "SELECT COUNT(1) FROM COURTBULLETIN WHERE COLLECTIONDATE > '" + minDate +
                 "' AND COLLECTIONDATE < '" + maxDate + "' AND ISSYNCHED = 'N'";
         ARE.getLog().info("SearchSQL=" + sql);
@@ -39,6 +41,7 @@ public class DataManager {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            throw e;
         } finally {
             try {
                 if (rs != null) {
@@ -68,7 +71,7 @@ public class DataManager {
      * @return 数据量，出错返回 -1
      */
     public int getDataNumByDateRange(String dataBase, String maxDate) {
-        String sql = "SELECT COUNT(1) FROM COURTBULLETIN_QY WHERE COLLECTIONDATE < '" + maxDate + "' AND STATUS = 'waiting'";
+        String sql = "SELECT COUNT(1) FROM  " + tableName + "  WHERE COLLECTIONDATE < '" + maxDate + "' AND STATUS = 'waiting'";
         ARE.getLog().info("SearchSQL=" + sql);
         Connection conn = null;
         PreparedStatement ps = null;
@@ -112,7 +115,7 @@ public class DataManager {
      * @return 数据量
      */
     public int getDataNumByDateRange(String dataBase, String minDate, String maxDate) {
-        String sql = "SELECT COUNT(1) FROM COURTBULLETIN_QY WHERE COLLECTIONDATE > '" + minDate +
+        String sql = "SELECT COUNT(1) FROM  " + tableName + "  WHERE COLLECTIONDATE > '" + minDate +
                 "' AND COLLECTIONDATE < '" + maxDate + "' AND ISSYNCHED = 'N'";
         ARE.getLog().info("SearchSQL=" + sql);
         Connection conn = null;
@@ -273,7 +276,7 @@ public class DataManager {
 
         String sql = "select SERIALNO,PTYPE,COURT,PARTY,PDATE,PDESC,DATASOURCE,CASENO,DEPARTMENT,CASEDATE,PLAINTIFF,AGENT,SECRETARY,CHIEFJUDGE"
                 + ",JUDGE,NOTICEADDR,DOCUCLASS,TARGET,TARGETTYPE,TARGETAMOUNT,TELNO,PROVINCE,CITY,CASEREASON,COLLECTIONDATE,DEALDATE,DEALPERSON,HTMLFILEPATH,"
-                + "QDATE,DOCUMENTCLASS,CASELEVEL,CARDNO,IPNAME,BATCHNO,CRAWLERID from COURTBULLETIN_QY where collectiondate < ? and status='" + status + "' limit ?,?"; //35items
+                + "QDATE,DOCUMENTCLASS,CASELEVEL,CARDNO,IPNAME,BATCHNO,CRAWLERID from  " + tableName + "  where collectiondate < ? and status='" + status + "' limit ?,?"; //35items
 
         try {
             conn = ARE.getDBConnection(database);
@@ -366,7 +369,7 @@ public class DataManager {
         String sql = "select SERIALNO,PTYPE,COURT,PARTY,PDATE,PDESC,DATASOURCE,CASENO,DEPARTMENT,CASEDATE,PLAINTIFF," +
                 "AGENT,SECRETARY,CHIEFJUDGE,JUDGE,NOTICEADDR,DOCUCLASS,TARGET,TARGETTYPE,TARGETAMOUNT,TELNO,PROVINCE," +
                 "CITY,FILEPATH,CASEREASON,COLLECTIONDATE,DEALDATE,DEALPERSON,COURTROOM,HTMLFILEPATH,QDATE," +
-                "DOCUMENTCLASS,CASELEVEL,CARDNO,IPNAME,BATCHNO,CRAWLERID,ISSYNCHED from COURTBULLETIN_QY where COLLECTIONDATE > ? " +
+                "DOCUMENTCLASS,CASELEVEL,CARDNO,IPNAME,BATCHNO,CRAWLERID,ISSYNCHED from  " + tableName + "  where COLLECTIONDATE > ? " +
                 "and COLLECTIONDATE<? and ISSYNCHED = 'N' and DATASOURCE='中国裁判文书网' order by collectiondate " +
                 "limit ?,?";
 
@@ -457,7 +460,7 @@ public class DataManager {
     }
 
 
-    public void insertYunData(List<DataModel> dataModelList, String sourceDB, String destDB) {
+    public void insertYunData(List<DataModel> dataModelList, String sourceDB, String destDB) throws SQLException {
         Connection conn_Dest = null;
         Connection conn_Sour = null;
         PreparedStatement ps_Insert = null;
@@ -538,7 +541,7 @@ public class DataManager {
                 ps_Status.setString(1, status2);
                 //因为云上数据同步到生产的serialno中间加了CLOUD，所以更新原来表的时候需要去掉
 
-                String rawSerialNo = serialNo.substring(0,4) + serialNo.substring(9);
+                String rawSerialNo = serialNo.substring(0, 4) + serialNo.substring(9);
                 ps_Status.setString(2, rawSerialNo);
                 ps_Status.addBatch();
                 insertCount++;
@@ -560,6 +563,7 @@ public class DataManager {
         } catch (SQLException e) {
             ARE.getLog().error("同步生产数据库出错", e);
             e.printStackTrace();
+            throw e;
         } finally {
             try {
                 if (ps_Insert != null) {
@@ -600,7 +604,7 @@ public class DataManager {
                 "TELNO,PROVINCE,CITY,CASEREASON,COLLECTIONDATE,DEALDATE,DEALPERSON,HTMLFILEPATH,QDATE,DOCUMENTCLASS," +
                 "CASELEVEL,CARDNO,IPNAME,BATCHNO,CRAWLERID) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
-        String sql_Status = "UPDATE COURTBULLETIN_QY SET STATUS = ? WHERE SERIALNO = ?";
+        String sql_Status = "UPDATE  " + tableName + "  SET STATUS = ? WHERE SERIALNO = ?";
         String status1 = "invalid";
         String status2 = "success";
 
@@ -705,5 +709,140 @@ public class DataManager {
                 e.printStackTrace();
             }
         }
+    }
+
+
+    //-------
+
+    public int get78DataNumByDateRange(String dataBase, String minDate, String maxDate) throws SQLException {
+        String sql = "SELECT COUNT(1) FROM COURTBULLETIN WHERE COLLECTIONDATE > '" + minDate +
+                "' AND COLLECTIONDATE < '" + maxDate + "'";
+        ARE.getLog().info("SearchSQL=" + sql);
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            conn = ARE.getDBConnection(dataBase);
+            ps = conn.prepareStatement(sql);
+            rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw e;
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+        }
+        return -1;
+    }
+
+    public List<DataModel> get78DataByDateRange(String database, String minDate, String maxDate, int start, int batchSize) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        List<DataModel> dataModelList = new LinkedList<DataModel>();
+//        String status = "waiting"; //这个是标志等待同步的字段
+
+        String sql = "select SERIALNO,PTYPE,COURT,PARTY,PDATE,PDESC,DATASOURCE,CASENO,DEPARTMENT,CASEDATE,PLAINTIFF," +
+                "AGENT,SECRETARY,CHIEFJUDGE,JUDGE,NOTICEADDR,DOCUCLASS,TARGET,TARGETTYPE,TARGETAMOUNT,TELNO,PROVINCE," +
+                "CITY,FILEPATH,CASEREASON,COLLECTIONDATE,DEALDATE,DEALPERSON,COURTROOM,HTMLFILEPATH,QDATE," +
+                "DOCUMENTCLASS,CASELEVEL,CARDNO,IPNAME,BATCHNO,CRAWLERID from COURTBULLETIN where COLLECTIONDATE > ? " +
+                "and COLLECTIONDATE<? order by collectiondate " +
+                "limit ?,?";
+        ARE.getLog().info("开始从数据库获取数据>>>>>>>>");
+        try {
+            conn = ARE.getDBConnection(database);
+            ps = conn.prepareStatement(sql);
+            ps.setString(1, minDate);
+            ps.setString(2, maxDate);
+            ps.setInt(3, start);
+            ps.setInt(4, batchSize);
+            rs = ps.executeQuery();
+
+            String serialNoYun = ""; //同步27数据需要在serialno中加入字符以区别
+            //serialNoYun = "CLOUD";
+
+            //批量加入ListModel
+            while (rs.next()) {
+                DataModel dataModel = new DataModel();
+                String newSerialNo = rs.getString("SERIALNO");
+                newSerialNo = newSerialNo.substring(0, 4) + serialNoYun + newSerialNo.substring(4, newSerialNo.length());
+                //ARE.getLog().info("test:serialyunno====>" + newSerialNo);
+                dataModel.setSerialNo(newSerialNo);
+                dataModel.setpType(rs.getString("PTYPE"));
+                dataModel.setCourt(rs.getString("COURT"));
+                dataModel.setParty(rs.getString("PARTY"));
+                dataModel.setpDate(rs.getString("PDATE"));
+                dataModel.setpDesc(rs.getString("PDESC"));
+                dataModel.setDataSource(rs.getString("DATASOURCE"));
+                dataModel.setCaseNo(rs.getString("CASENO"));
+                dataModel.setDepartment(rs.getString("DEPARTMENT"));
+                dataModel.setCaseDate(rs.getString("CASEDATE"));
+                dataModel.setPlaintiff(rs.getString("PLAINTIFF"));
+                dataModel.setAgent(rs.getString("AGENT"));
+                dataModel.setSecretary(rs.getString("SECRETARY"));
+                dataModel.setChiefJudge(rs.getString("CHIEFJUDGE"));
+                dataModel.setJudge(rs.getString("JUDGE"));
+                dataModel.setNoticeAddress(rs.getString("NOTICEADDR"));
+                dataModel.setDocumentClass(rs.getString("DOCUCLASS"));
+                dataModel.setTarget(rs.getString("TARGET"));
+                dataModel.setTargetType(rs.getString("TARGETTYPE"));
+                dataModel.setTargetAmount(rs.getString("TARGETAMOUNT"));
+                dataModel.setTelNo(rs.getString("TELNO"));
+                dataModel.setProvince(rs.getString("PROVINCE"));
+                dataModel.setCity(rs.getString("CITY"));
+                dataModel.setFilePath(rs.getString("FILEPATH"));
+                dataModel.setCaseReason(rs.getString("CASEREASON"));
+                dataModel.setCollectionDate(rs.getString("COLLECTIONDATE"));
+                dataModel.setDealDate(rs.getString("DEALDATE"));
+                dataModel.setDealPerson(rs.getString("DEALPERSON"));
+                dataModel.setCourtRoom(rs.getString("COURTROOM"));
+                dataModel.setHTMLFilePath(rs.getString("HTMLFILEPATH"));
+                dataModel.setqDate(rs.getString("QDATE"));
+                dataModel.setDocumentClass(rs.getString("DOCUMENTCLASS"));
+                dataModel.setCaseLevel(rs.getString("CASELEVEL"));
+                dataModel.setCardNo(rs.getString("CARDNO"));
+                dataModel.setIPName(rs.getString("IPNAME"));
+                dataModel.setBatchNo(rs.getString("BATCHNO"));
+                dataModel.setCrawlerID(rs.getString("CRAWLERID"));
+                dataModelList.add(dataModel);
+            }
+            ARE.getLog().info("从数据库获取数据完成<<<<<<<<");
+
+        } catch (SQLException e) {
+            ARE.getLog().error("从数据库获取数据出错", e);
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return dataModelList;
     }
 }

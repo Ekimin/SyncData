@@ -89,5 +89,17 @@
             <maxWait>10000</maxWait>
             <maxIdle>30</maxIdle>
         </resource>
+
+        <resource type="jdbc" name="78_bdsyn">
+            <driver>com.mysql.jdbc.Driver</driver>
+            <url>jdbc:mysql://192.168.61.78:3306/bdsyn?useUnicode=true&amp;characterEncoding=utf8&amp;autoReconnect=true</url>
+            <user>dbsyn</user>
+            <password>dbsyn</password>
+            <loginTimeout>0</loginTimeout>
+            <logWriter>system.out</logWriter>
+            <maxActive>10</maxActive>
+            <maxWait>5000</maxWait>
+            <maxIdle>5</maxIdle>
+        </resource>
     </resources>
 </databaseConfig>
