@@ -215,7 +215,6 @@ public class SyncMain {
                 dataModelList = null;
             } else {
                 ARE.getLog().info("##############本次没有查询到需要同步的数据###########");
-
             }
 
 
@@ -311,7 +310,7 @@ public class SyncMain {
         ARE.getLog().info("初始化布隆过滤器>>>>>>>>>>");
         bloomImpl.init();
         ARE.getLog().info("初始化布隆过滤器结束<<<<<<");
-        //测试时注意不要修改25库标志位.测试时候是同步78dbsyn.COURBULLETIN_QY到78dbdata.COURTBULLETIN
+        //测试时注意不要修改25库标志位.测试时候是同步78bdsyn.COURBULLETIN_QY到78dbdata.COURTBULLETIN
         new SyncMain().syncDataMain(bloomImpl);
 //        try {
 //            new SyncMain().syncYunDataMain(bloomImpl);
