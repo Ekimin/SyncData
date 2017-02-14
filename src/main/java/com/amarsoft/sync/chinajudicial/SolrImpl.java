@@ -75,10 +75,6 @@ public class SolrImpl {
             String text = "";
             try {
                 text = hBaseManager.getValue(dataModel.getSerialNo(), HBaseManager.getQUALIFIER());
-                if(text != null && !text.equals("")){
-                    ARE.getLog().info("testonly text exist. text=" + text.substring(0, 100));
-                }
-                //ARE.getLog().info("testonly text=" + text);
             } catch (Exception e) {
                 ARE.getLog().error("从Hbase中取数据出错", e);
                 e.printStackTrace();
