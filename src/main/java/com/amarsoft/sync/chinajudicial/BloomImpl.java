@@ -1,5 +1,6 @@
 package com.amarsoft.sync.chinajudicial;
 
+import com.amarsoft.are.ARE;
 import com.amarsoft.are.lang.StringX;
 import com.amarsoft.model.chinajudicial.DataModel;
 import com.amarsoft.util.bloomfilter.BloomFilterFactory;
@@ -30,21 +31,16 @@ public class BloomImpl {
         bloomFilterManager.init();
     }
 
-    public BloomFilterManager getBloomFilterManager() {
-        return bloomFilterManager;
-    }
-
-    public void setBloomFilterManager(BloomFilterManager bloomFilterManager) {
-        this.bloomFilterManager = bloomFilterManager;
-    }
-
     /**
      * 剔除已经存在布隆过滤器中的数据
      *
      * @param dataModelList
-     * @param bloomFilterManager
      */
-    public void clearDataByBloom(List<DataModel> dataModelList, BloomFilterManager bloomFilterManager) {
+    public void clearDataByBloom(List<DataModel> dataModelList) {
+        if (!bloomFilterManager.isInit()){
+            bloomFilterManager.init();
+        }
+
         String url = "";
 
         for (DataModel dataModel : dataModelList) {
@@ -55,13 +51,41 @@ public class BloomImpl {
             } else {
                 if (bloomFilterManager.isContain(url)) {
                     dataModel.setURLStatus("R"); //重复
+                    //ARE.getLog().info("URL重复：" + url); //TODO:test only
                 } else {
                     //不重复，需要同步
                     dataModel.setURLStatus("T");
-                    //bloomFilterManager.add(url);
                 }
             }
         }
         //bloomFilterManager.save();
+    }
+
+    /**
+     * 保存布隆过滤器状态
+     */
+    public void saveBloom(){
+        this.bloomFilterManager.save();
+    }
+
+    /**
+     * 将同步过的数据的URL添加到布隆过滤器中
+     * @param dataModelList
+     */
+    public void addBloom(List<DataModel> dataModelList){
+        for (DataModel dataModel : dataModelList){
+            String urlStatus = dataModel.getURLStatus();
+            if(urlStatus != null && urlStatus.equals("T")){
+                this.bloomFilterManager.add(dataModel.getNoticeAddress());
+            }
+        }
+    }
+
+    public BloomFilterManager getBloomFilterManager() {
+        return bloomFilterManager;
+    }
+
+    public void setBloomFilterManager(BloomFilterManager bloomFilterManager) {
+        this.bloomFilterManager = bloomFilterManager;
     }
 }

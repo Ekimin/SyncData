@@ -17,9 +17,9 @@ public class HBaseImpl {
      * 将数据（serialno,pdesc）存入到Hbase
      *
      * @param dataModelList
-     * @param hBaseControl
+     * @param hBaseManager
      */
-    public void saveDataInHbase(List<DataModel> dataModelList, HBaseManager hBaseControl) {
+    public void saveDataInHbase(List<DataModel> dataModelList, HBaseManager hBaseManager) {
 
         List<FileModel> fileModelList = new LinkedList<FileModel>();
         //同步标志位为T的数据到Habse
@@ -34,7 +34,7 @@ public class HBaseImpl {
 
 
         try {
-            hBaseControl.saveBatch(fileModelList);
+            hBaseManager.saveBatch(fileModelList);
         } catch (Exception e) {
             ARE.getLog().error("同步数据到hbase出错了", e);
             e.printStackTrace();
@@ -44,4 +44,6 @@ public class HBaseImpl {
             }
         }
     }
+
+
 }

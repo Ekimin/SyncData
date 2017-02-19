@@ -5,6 +5,7 @@ import com.amarsoft.model.chinajudicial.DataModel;
 import com.amarsoft.util.hbase.HBaseManager;
 import com.amarsoft.util.solr.SolrManager;
 import org.apache.solr.client.solrj.SolrServerException;
+
 import org.apache.solr.common.SolrInputDocument;
 
 import java.io.IOException;
@@ -16,18 +17,24 @@ import java.util.List;
  * SyncData
  */
 public class SolrImpl {
+    private SolrManager solrManager;
+
+    public SolrImpl(String solrHost) {
+        this.solrManager = new SolrManager(solrHost);
+    }
+
     /**
      * 同步solr
-     *
+     * <li>文章正文数据来自Hbase</li>
+     * 公用方法
      * @param dataModelList
-     * @param solrManager
-     * @param hBaseControl
+     * @param hBaseManager
      */
-    public void syncSolr(List<DataModel> dataModelList, SolrManager solrManager, HBaseManager hBaseControl) {
+    public void syncSolr(List<DataModel> dataModelList, HBaseManager hBaseManager) {
         List<SolrInputDocument> solrInputDocumentList = new LinkedList<SolrInputDocument>();
         SolrInputDocument document;
         //建立Hbase连接
-        hBaseControl.getConnect(ARE.getProperty("HBASE_TABLE"));
+        hBaseManager.getConnect(ARE.getProperty("HBASE_TABLE"));
 
         for (DataModel dataModel : dataModelList) {
             //跳过重复和空URL的数据
@@ -67,8 +74,7 @@ public class SolrImpl {
             //正文从Hbase中取
             String text = "";
             try {
-                text = hBaseControl.getValue(dataModel.getSerialNo(), HBaseManager.getQUALIFIER());
-//                ARE.getLog().info("testonly text=" + text);
+                text = hBaseManager.getValue(dataModel.getSerialNo(), HBaseManager.getQUALIFIER());
             } catch (Exception e) {
                 ARE.getLog().error("从Hbase中取数据出错", e);
                 e.printStackTrace();
@@ -77,12 +83,14 @@ public class SolrImpl {
             solrInputDocumentList.add(document);
         }
         //关闭hbase连接
-        hBaseControl.connClose();
+        hBaseManager.connClose();
 
         try {
             //提交同步请求
-            solrManager.getServer().add(solrInputDocumentList);
-            solrManager.getServer().commit();
+            if(solrInputDocumentList.size()>0){
+                this.solrManager.getServer().add(solrInputDocumentList);
+                this.solrManager.getServer().commit();
+            }
         } catch (SolrServerException e) {
             ARE.getLog().error("同步solr时出现错误", e);
             e.printStackTrace();
