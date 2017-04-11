@@ -270,10 +270,10 @@ public class HBaseManager {
         return value;
     }
 
-//    public static void main(String[] args) {
-////        HBaseControl.testSolr();
-//        HBaseManager.testHbase();
-//    }
+    public static void main(String[] args) {
+//        HBaseControl.testSolr();
+        HBaseManager.testHbase("ZCSZ2016101400984166");
+    }
 
     public static void testHbase(String serialno) {
         ARE.init();

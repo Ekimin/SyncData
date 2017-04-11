@@ -16,9 +16,9 @@
         <!-- 同步solr的地址 -->
         <Property name="SOLRHOST" value="http://192.168.61.81:8070/solrlira/"/>
         <!-- HBase配置信息 -->
-        <Property name="ZK_HOST" value="cdh1,cdh2,cdh3"/>
+        <Property name="ZK_HOST" value="cloudera01,cloudera02,cloudera03,cloudera04,cloudera05,cloudera06"/>
         <Property name="ZK_PORT" value="2181"/>
-        <Property name="HBASE_TABLE" value="courtbulletinCZ"/>
+        <Property name="HBASE_TABLE" value="courtbulletinprd"/>
         <Property name="HBASE_FAMILY" value="name"/>
         <Property name="QUALIFIER" value="PDESC"/>
         <Property name="synOneTime" value="500"/>

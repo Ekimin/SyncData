@@ -15,12 +15,10 @@
 hs_err_pid*
 
 #IDEA ignore files
-.idea/inspectionProfiles/
+.idea
 log/
 target/
-workspace.xml
 lib/
-.idea/artifacts/
 out/
 src/main/java/META-INF/
 .iml
