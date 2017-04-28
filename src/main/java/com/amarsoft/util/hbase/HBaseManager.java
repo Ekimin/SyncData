@@ -17,7 +17,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Created by ymhe on 2016/12/28.
+ * Created by Ekimin on 2016/12/28.
  * ChinaJudicialDataTransfer
  */
 public class HBaseManager {
